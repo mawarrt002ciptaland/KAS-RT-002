@@ -29,7 +29,7 @@ export default function DashboardView() {
   const now = new Date();
   const greet = now.getHours() < 11 ? "Selamat pagi" : now.getHours() < 15 ? "Selamat siang" : now.getHours() < 18 ? "Selamat sore" : "Selamat malam";
 
-  if (loading || neonStatus === "syncing") {
+  if (loading) {
     return (
       <div className="space-y-4" aria-busy="true">
         <CardSkeleton className="h-28" />
@@ -51,12 +51,12 @@ export default function DashboardView() {
             <p className="mt-1 text-xs text-primary-foreground/80 sm:text-sm">{formatTanggalLengkapID(now)} • {warga.length} KK terdaftar</p>
             <div className="mt-3 flex flex-wrap items-center gap-2">
               <span className="inline-flex min-h-8 items-center gap-1.5 rounded-full bg-white/15 px-2.5 text-xs font-semibold">
-                {neonStatus === "connected" ? <CircleCheck className="h-3.5 w-3.5" /> : <CircleAlert className="h-3.5 w-3.5" />}
-                {neonStatus === "connected" ? "Tersinkron ke Neon" : "Mode lokal · Neon terputus"}
+                {neonStatus === "connected" ? <CircleCheck className="h-3.5 w-3.5" /> : neonStatus === "offline" ? <CircleAlert className="h-3.5 w-3.5" /> : <RefreshCw className="h-3.5 w-3.5 animate-spin" />}
+                {neonStatus === "connected" ? "Tersinkron ke Neon" : neonStatus === "offline" ? "Mode lokal · Neon terputus" : "Menghubungkan ke Neon…"}
               </span>
-              <button onClick={() => void syncRemoteData()} className="inline-flex min-h-8 items-center gap-1 rounded-lg px-2 text-xs font-semibold hover:bg-white/15" aria-label="Sinkronkan data dari Neon">
-                <RefreshCw className="h-3.5 w-3.5" />
-                Sinkronkan
+              <button onClick={() => void syncRemoteData()} disabled={neonStatus === "syncing"} className="inline-flex min-h-8 items-center gap-1 rounded-lg px-2 text-xs font-semibold hover:bg-white/15 disabled:opacity-60" aria-label="Sinkronkan data dari Neon">
+                <RefreshCw className={`h-3.5 w-3.5 ${neonStatus === "syncing" ? "animate-spin" : ""}`} />
+                {neonStatus === "syncing" ? "Menyinkronkan" : "Sinkronkan"}
               </button>
               {neonStatus === "connected" && neonLastSync && <span className="text-[11px] text-primary-foreground/70">Terakhir: {new Date(neonLastSync).toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" })}</span>}
             </div>
