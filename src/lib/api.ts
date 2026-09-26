@@ -5,6 +5,26 @@ const API_BASE = configuredBase
     ? "http://localhost:8787"
     : "";
 const API_KEY_STORAGE = "rt002-api-key-session";
+const API_BASE_STORAGE = "rt002-api-base-session";
+
+export function getAdminApiBase(): string {
+  try {
+    return sessionStorage.getItem(API_BASE_STORAGE) ?? "";
+  } catch {
+    return "";
+  }
+}
+
+export function setAdminApiBase(value: string): boolean {
+  try {
+    const base = value.trim().replace(/\/$/, "");
+    if (!base) sessionStorage.removeItem(API_BASE_STORAGE);
+    else sessionStorage.setItem(API_BASE_STORAGE, base);
+    return true;
+  } catch {
+    return false;
+  }
+}
 
 export function getAdminApiKey(): string {
   try {
@@ -36,8 +56,9 @@ export class ApiError extends Error {
 
 export async function apiRequest<T>(path: string, init?: RequestInit): Promise<T> {
   let response: Response;
+  const base = getAdminApiBase() || API_BASE;
   try {
-    response = await fetch(`${API_BASE}${path}`, {
+    response = await fetch(`${base}${path}`, {
       ...init,
       headers: {
         ...(init?.body ? { "Content-Type": "application/json" } : {}),
