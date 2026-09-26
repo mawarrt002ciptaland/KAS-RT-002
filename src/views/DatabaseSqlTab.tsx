@@ -7,7 +7,7 @@ import { copyText, downloadBlob, openExternal } from "@/lib/utils";
 import { formatRupiah, periodeLabel } from "@/lib/format";
 import { Button, Badge, Input } from "@/components/ui";
 import { SectionTitle, StatCard, RupiahText } from "@/components/shared";
-import { getAdminApiKey, setAdminApiKey } from "@/lib/api";
+import { getAdminApiBase, getAdminApiKey, setAdminApiBase, setAdminApiKey } from "@/lib/api";
 
 /** Baris VALUES aktif (yang dikomentari "-- (" tidak ikut dihitung) */
 const ROW_RE = /^\s*\('TRX-(?:PEM|PENG)-(\d{4})(\d{2})-\d{3}',\s*'(pemasukan|pengeluaran)',\s*'[^']*',\s*'\d{4}-\d{2}-\d{2}',\s*(\d+),/gm;
@@ -20,7 +20,9 @@ const FILE_NAME = "neon_transaksi_2026.sql";
 
 export default function DatabaseSqlTab() {
   const [copied, setCopied] = useState(false);
+  const [apiBaseDraft, setApiBaseDraft] = useState("");
   const [keyDraft, setKeyDraft] = useState("");
+  const [apiBaseSaved, setApiBaseSaved] = useState(() => Boolean(getAdminApiBase()));
   const [keySaved, setKeySaved] = useState(() => Boolean(getAdminApiKey()));
   const neonStatus = useData((s) => s.neonStatus);
   const neonError = useData((s) => s.neonError);
@@ -64,6 +66,16 @@ export default function DatabaseSqlTab() {
     setKeySaved(false);
     toast.info("Kunci dihapus dari sesi browser");
   }
+  function simpanAlamatApi() {
+    if (apiBaseDraft && !/^https?:\/\//i.test(apiBaseDraft.trim())) {
+      return toast.error("Alamat API harus diawali https:// atau http://");
+    }
+    if (!setAdminApiBase(apiBaseDraft)) return toast.error("Browser tidak dapat menyimpan alamat API untuk sesi ini");
+    setApiBaseSaved(Boolean(apiBaseDraft.trim()));
+    setApiBaseDraft("");
+    toast.success(apiBaseDraft.trim() ? "Alamat API disimpan untuk sesi browser ini" : "Menggunakan alamat API bawaan aplikasi");
+    void syncRemoteData();
+  }
 
   return (
     <div className="space-y-4">
@@ -88,6 +100,12 @@ export default function DatabaseSqlTab() {
       </div>
 
       <div className="rounded-xl border bg-card p-4">
+        <div className="mb-4 rounded-lg bg-muted/40 p-3 text-sm">
+          <p className="font-semibold">Project Neon yang diberikan</p>
+          <p className="mt-1 text-xs text-muted-foreground">Project ID: <code className="font-mono">super-mud-36780075</code></p>
+          <p className="text-xs text-muted-foreground">Branch: <code className="font-mono">production</code> (<code className="font-mono">br-aged-surf-b3co4w8c</code>)</p>
+          <p className="mt-2 text-xs text-muted-foreground">Pastikan connection string backend memilih branch production ini. Project ID dan Branch ID saja bukan connection string dan tidak bisa dipakai sebagai password database.</p>
+        </div>
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
           <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full ${neonStatus === "connected" ? "bg-success/15 text-success" : neonStatus === "syncing" ? "bg-primary/10 text-primary" : "bg-warning/20 text-warning-foreground dark:text-warning"}`}>
             {neonStatus === "connected" ? <CheckCircle2 className="h-5 w-5" /> : neonStatus === "syncing" ? <RefreshCw className="h-5 w-5 animate-spin" /> : <AlertTriangle className="h-5 w-5" />}
@@ -104,6 +122,12 @@ export default function DatabaseSqlTab() {
           {keySaved && <Button variant="ghost" className="text-destructive" onClick={hapusKunci}>Hapus Kunci</Button>}
         </div>
         <p className="mt-1 text-xs text-muted-foreground">Kunci admin dikirim sebagai header API dan hanya disimpan di sessionStorage sampai tab browser ditutup. Jangan gunakan connection string Neon di sini.</p>
+        <div className="mt-4 grid gap-2 sm:grid-cols-[minmax(0,1fr)_auto_auto]">
+          <Input type="url" inputMode="url" autoComplete="url" value={apiBaseDraft} onChange={(event) => setApiBaseDraft(event.target.value)} placeholder={apiBaseSaved ? "Alamat API sudah disetel untuk sesi ini" : "Alamat API server, contoh https://rt002-api.example.com"} aria-label="Alamat API server" />
+          <Button variant="soft" onClick={simpanAlamatApi}>Simpan Alamat API</Button>
+          {apiBaseSaved && <Button variant="ghost" className="text-destructive" onClick={() => { setAdminApiBase(""); setApiBaseSaved(false); toast.info("Alamat API sesi dihapus"); }}>Hapus</Button>}
+        </div>
+        <p className="mt-1 text-xs text-muted-foreground">Isi hanya bila API server di-host terpisah dari aplikasi. Connection string Neon tetap berada di environment server; jangan masukkan ke browser.</p>
       </div>
 
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
