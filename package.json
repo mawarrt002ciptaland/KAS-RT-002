@@ -1,25 +1,11 @@
 {
-  "$schema": "https://railway.app/railway.schema.json",
-  "build": {
-    "builder": "NIXPACKS",
-    "buildCommand": "npm install && npm run build",
-    "watchPatterns": ["src/**", "server/**", "public/**", "package.json"]
-  },
-  "deploy": {
-    "startCommand": "node server/index.mjs",
-    "restartPolicyType": "ON_FAILURE",
-    "restartPolicyMaxRetries": 3
-  },
-  "nixpacks": {
-    "installCommand": "npm install --include=dev"
-  }
-}
-
-{
   "name": "react-vite-tailwind",
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "engines": {
+    "node": ">=20.0.0"
+  },
   "scripts": {
     "dev": "vite",
     "build": "vite build",
@@ -28,6 +14,8 @@
   "dependencies": {
     "@neondatabase/neon-js": "^0.7.0-beta",
     "@neondatabase/serverless": "^1.1.0",
+    "@tailwindcss/vite": "4.1.17",
+    "@vitejs/plugin-react": "5.1.1",
     "clsx": "2.1.1",
     "cors": "^2.8.6",
     "express": "^5.2.1",
@@ -37,17 +25,15 @@
     "recharts": "^3.10.1",
     "sonner": "^2.0.8",
     "tailwind-merge": "3.4.0",
+    "tailwindcss": "4.1.17",
+    "vite": "7.3.2",
+    "vite-plugin-singlefile": "2.3.0",
     "zustand": "^5.0.15"
   },
   "devDependencies": {
-    "@tailwindcss/vite": "4.1.17",
     "@types/node": "22.19.17",
     "@types/react": "19.2.7",
     "@types/react-dom": "19.2.3",
-    "@vitejs/plugin-react": "5.1.1",
-    "tailwindcss": "4.1.17",
-    "typescript": "5.9.3",
-    "vite": "7.3.2",
-    "vite-plugin-singlefile": "2.3.0"
+    "typescript": "5.9.3"
   }
 }
