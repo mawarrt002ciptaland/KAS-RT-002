@@ -14,7 +14,7 @@ export interface ModalProps {
   title?: ReactNode;
   description?: ReactNode;
   children: ReactNode;
-  footer?: ReactNode;
+  footer?: ReactNode;  
   size?: "sm" | "md" | "lg" | "xl";
   /** full-screen on mobile instead of bottom sheet */
   fullOnMobile?: boolean;
@@ -87,6 +87,7 @@ export function Modal({ open, onClose, title, description, children, footer, siz
 
 /* ------------------------------------------------------------------ */
 /* Drawer: side panel (left for nav, right for notifications)          */
+/* FIX: Tambah -webkit-overflow-scrolling: touch untuk iOS Safari      */
 /* ------------------------------------------------------------------ */
 export function Drawer({ open, onClose, side = "left", title, children, className, ariaLabel }: { open: boolean; onClose: () => void; side?: "left" | "right"; title?: ReactNode; children: ReactNode; className?: string; ariaLabel?: string }) {
   const stableClose = useCallback(() => onClose(), [onClose]);
@@ -105,6 +106,7 @@ export function Drawer({ open, onClose, side = "left", title, children, classNam
           side === "left" ? "left-0 animate-slide-in-left" : "right-0 animate-slide-in-right",
           className,
         )}
+        style={{ WebkitOverflowScrolling: "touch" }}
       >
         {title && (
           <div className="flex shrink-0 items-center justify-between border-b px-4 py-3 pt-safe">
@@ -165,28 +167,35 @@ export function ConfirmDialog({ open, onClose, onConfirm, title, description, co
 
 /* ------------------------------------------------------------------ */
 /* Dropdown menu (desktop header avatar etc.)                          */
+/* FIX: Delay 300ms sebelum attach touchstart listener supaya tap      */
+/* pembuka tidak langsung menutup dropdown di HP (mobile bug)         */
 /* ------------------------------------------------------------------ */
 export function Dropdown({ trigger, items, align = "right" }: { trigger: (open: boolean) => ReactNode; items: { label: string; icon?: ReactNode; onClick: () => void; tone?: "default" | "destructive" }[]; align?: "left" | "right" }) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
   useEffect(() => {
     if (!open) return;
-    const onDoc = (e: MouseEvent | TouchEvent) => {
-      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
-    };
-    document.addEventListener("mousedown", onDoc);
-    document.addEventListener("touchstart", onDoc);
-    return () => {
-      document.removeEventListener("mousedown", onDoc);
-      document.removeEventListener("touchstart", onDoc);
-    };
+    // FIX: Delay 300ms supaya touch event dari tap pembuka tidak langsung nutup
+    const timer = setTimeout(() => {
+      const onDoc = (e: MouseEvent | TouchEvent) => {
+        if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+      };
+      document.addEventListener("mousedown", onDoc);
+      document.addEventListener("touchstart", onDoc, { passive: true });
+      return () => {
+        document.removeEventListener("mousedown", onDoc);
+        document.removeEventListener("touchstart", onDoc);
+      };
+    }, 300);
+    return () => clearTimeout(timer);
   }, [open]);
   useEscape(() => setOpen(false), open);
   return (
     <div ref={ref} className="relative">
-      <div onClick={() => setOpen((o) => !o)}>{trigger(open)}</div>
+      {/* FIX: stopPropagation supaya klik tidak langsung trigger document listener */}
+      <div onClick={(e) => { e.stopPropagation(); setOpen((o) => !o); }}>{trigger(open)}</div>
       {open && (
-        <div role="menu" className={cn("absolute top-full z-50 mt-2 w-56 max-w-[calc(100vw-1.5rem)] overflow-hidden rounded-xl border bg-popover p-1 text-popover-foreground shadow-xl animate-slide-down", align === "right" ? "right-0" : "left-0")}>
+        <div role="menu" className={cn("absolute top-full z-[90] mt-2 w-56 max-w-[calc(100vw-1.5rem)] overflow-hidden rounded-xl border bg-popover p-1 text-popover-foreground shadow-xl animate-slide-down", align === "right" ? "right-0" : "left-0")}>
           {items.map((it) => (
             <button
               key={it.label}
