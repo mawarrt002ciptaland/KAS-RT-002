@@ -291,53 +291,7 @@ function WargaProfil({ onSwitchAdmin, onLogout, canSwitchAdmin }: { onSwitchAdmi
         <Switch id="wg-dark" checked={theme === "dark"} onChange={(v) => setTheme(v ? "dark" : "light")} label="Mode gelap" />
         {canInstall && <Button variant="outline" fullWidth className="mt-2" leftIcon={<Download className="h-4 w-4" />} onClick={() => install()}>Install Sistem Informasi RT 002</Button>}
         
-        {/* TOMBOL RESET CACHE TAMBAHAN */}
-        <Button 
-          variant="outline" 
-          fullWidth 
-          className="mt-2" 
-          leftIcon={<RefreshCw className="h-4 w-4" />} 
-          onClick={async () => {
-            if (confirm("Hapus cache aplikasi dan muat ulang data terbaru?")) {
-              toast.info("Memperbarui data...");
-              if ('caches' in window) {
-                const keys = await caches.keys();
-                await Promise.all(keys.map(k => caches.delete(k)));
-              }
-              if ('serviceWorker' in navigator) {
-                const regs = await navigator.serviceWorker.getRegistrations();
-                await Promise.all(regs.map(r => r.unregister()));
-              }
-              window.location.reload();
-            }
-          }}
-        >
-          Muat Ulang Data (Reset Cache)
-        </Button>
 
-        {/* TOMBOL RESET CACHE TAMBAHAN */}
-        <Button 
-          variant="outline" 
-          fullWidth 
-          className="mt-2" 
-          leftIcon={<RefreshCw className="h-4 w-4" />} 
-          onClick={async () => {
-            if (confirm("Hapus cache aplikasi dan muat ulang data terbaru?")) {
-              toast.info("Memperbarui data...");
-              if ('caches' in window) {
-                const keys = await caches.keys();
-                await Promise.all(keys.map(k => caches.delete(k)));
-              }
-              if ('serviceWorker' in navigator) {
-                const regs = await navigator.serviceWorker.getRegistrations();
-                await Promise.all(regs.map(r => r.unregister()));
-              }
-              window.location.reload();
-            }
-          }}
-        >
-          Muat Ulang Data (Reset Cache)
-        </Button>
         {canSwitchAdmin && <Button variant="soft" fullWidth className="mt-2" leftIcon={<Sparkles className="h-4 w-4" />} onClick={onSwitchAdmin}>Beralih ke Tampilan Pengurus</Button>}
         <Button variant="ghost" fullWidth className="mt-2 text-destructive" leftIcon={<LogOut className="h-4 w-4" />} onClick={onLogout}>Keluar</Button>
         <p className="mt-3 flex items-center justify-center gap-1 text-[11px] text-muted-foreground">{theme === "dark" ? <Moon className="h-3 w-3" /> : <Sun className="h-3 w-3" />} Sistem Informasi RT 002 • v1.0</p>
