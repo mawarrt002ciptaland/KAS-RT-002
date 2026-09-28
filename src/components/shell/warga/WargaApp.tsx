@@ -62,7 +62,7 @@ export default function WargaApp() {
           <span className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-primary text-primary-foreground">{logo ? <img src={logo} alt="" className="h-full w-full object-cover" /> : <Home className="h-5 w-5" />}</span>
           <div className="min-w-0 flex-1 leading-none"><p className="truncate text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">Sistem Informasi</p><p className="truncate text-sm font-extrabold">RT 002 Blok Mawar</p></div>
           <button onClick={() => setNotifOpen(true)} className="touch-target relative flex items-center justify-center rounded-lg hover:bg-muted" aria-label="Notifikasi"><Bell className="h-5 w-5" />{(belum > 0 || pengumuman.some((p) => p.prioritas === "mendesak" && p.status === "aktif")) && <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-destructive ring-2 ring-background" />}</button>
-          <button onClick={() => setTab("profil")} className="touch-target flex items-center justify-center" aria-label="Profil"><Avatar name="Bayu J Putra" size="sm" /></button>
+          <button onClick={() => setTab("profil")} className="touch-target flex items-center justify-center" aria-label="Profil"><Avatar name={authUser?.nama ?? "Warga"} size="sm" /></button>
         </div>
       </header>
 
