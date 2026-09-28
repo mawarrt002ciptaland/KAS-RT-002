@@ -1,12 +1,20 @@
+// src/lib/api.ts — FIXED: auto-clear old session URL, pakai relative path di production
+
 const configuredBase = (import.meta.env.VITE_API_BASE_URL as string | undefined)?.trim();
 const API_BASE = configuredBase
   ? configuredBase.replace(/\/$/, "")
   : import.meta.env.DEV
     ? "http://localhost:8787"
-    : "";
+    : ""; // production: pakai relative path (domain yang sama)
+
 const API_BASE_STORAGE = "rt002-api-base-session";
 const NEON_DATA_API_STORAGE = "rt002-neon-data-api-url";
 const BUILD_NEON_DATA_API_URL = (import.meta.env.VITE_NEON_DATA_API_URL as string | undefined)?.trim() ?? "";
+
+// FIX: Auto-clear old session URL di setiap load supaya tidak nyangkut URL lama
+if (typeof window !== "undefined") {
+  try { sessionStorage.removeItem(API_BASE_STORAGE); } catch {}
+}
 
 export function getNeonDataApiUrl(): string {
   try {
@@ -26,28 +34,19 @@ export function setNeonDataApiUrl(value: string): boolean {
     return false;
   }
 }
+
+// FIXED: getAdminApiBase selalu return "" di production (pakai relative path)
 export function getAdminApiBase(): string {
-  try {
-    return sessionStorage.getItem(API_BASE_STORAGE) ?? "";
-  } catch {
-    return "";
-  }
+  return "";
 }
 
-export function setAdminApiBase(value: string): boolean {
-  try {
-    const base = value.trim().replace(/\/$/, "");
-    if (!base) sessionStorage.removeItem(API_BASE_STORAGE);
-    else sessionStorage.setItem(API_BASE_STORAGE, base);
-    return true;
-  } catch {
-    return false;
-  }
+export function setAdminApiBase(_value: string): boolean {
+  // FIXED: tidak menyimpan ke sessionStorage lagi
+  return true;
 }
 
 export class ApiError extends Error {
   status: number;
-
   constructor(message: string, status: number) {
     super(message);
     this.name = "ApiError";
@@ -75,7 +74,7 @@ export async function apiRequest<T>(path: string, init?: RequestInit): Promise<T
 
   const contentType = response.headers.get("content-type") ?? "";
   if (!contentType.toLowerCase().includes("application/json")) {
-    throw new ApiError("Alamat ini menyajikan website, bukan API Neon. Masukkan Neon Data API URL atau deploy backend API.", response.status);
+    throw new ApiError("Alamat ini menyajikan website, bukan API Neon.", response.status);
   }
 
   const payload = await response.json().catch(() => null) as { error?: string } | null;
