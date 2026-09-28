@@ -9,14 +9,12 @@ self.addEventListener("install", (e) => {
         .catch(() => c.add(OFFLINE_URL).catch(() => {}))
     )
   );
-  // FIX: skipWaiting supaya SW baru langsung replace yang lama
   self.skipWaiting();
 });
 
 self.addEventListener("activate", (e) => {
   e.waitUntil(
     caches.keys().then((keys) => {
-      // FIX: hapus SEMUA cache lama (v1, v2, v3)
       return Promise.all(
         keys.filter((k) => k !== CACHE).map((k) => {
           console.log("Deleting old cache:", k);
@@ -31,7 +29,6 @@ self.addEventListener("fetch", (e) => {
   const req = e.request;
   if (req.method !== "GET") return;
   
-  // FIX: JANGAN PERNAH cache API calls — selalu ambil dari server
   if (req.url.includes('/api/')) {
     e.respondWith(
       fetch(req).then((res) => {
@@ -43,7 +40,6 @@ self.addEventListener("fetch", (e) => {
     return;
   }
 
-  // Untuk navigasi (halaman HTML)
   if (req.mode === "navigate") {
     e.respondWith(
       fetch(req).then((res) => {
@@ -55,7 +51,6 @@ self.addEventListener("fetch", (e) => {
     return;
   }
 
-  // Untuk aset statis (CSS, JS, gambar)
   if (new URL(req.url).origin === self.location.origin) {
     e.respondWith(
       caches.match(req).then((cached) => 
@@ -69,7 +64,6 @@ self.addEventListener("fetch", (e) => {
   }
 });
 
-// FIX: Listen untuk message dari client untuk force update
 self.addEventListener("message", (e) => {
   if (e.data === "SKIP_WAITING") {
     self.skipWaiting();

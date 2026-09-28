@@ -16,7 +16,6 @@ export interface ModalProps {
   children: ReactNode;
   footer?: ReactNode;  
   size?: "sm" | "md" | "lg" | "xl";
-  /** full-screen on mobile instead of bottom sheet */
   fullOnMobile?: boolean;
   bodyClassName?: string;
   hideClose?: boolean;
@@ -175,7 +174,6 @@ export function Dropdown({ trigger, items, align = "right" }: { trigger: (open: 
   const ref = useRef<HTMLDivElement>(null);
   useEffect(() => {
     if (!open) return;
-    // FIX: Delay 300ms supaya touch event dari tap pembuka tidak langsung nutup
     const timer = setTimeout(() => {
       const onDoc = (e: MouseEvent | TouchEvent) => {
         if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
@@ -192,7 +190,6 @@ export function Dropdown({ trigger, items, align = "right" }: { trigger: (open: 
   useEscape(() => setOpen(false), open);
   return (
     <div ref={ref} className="relative">
-      {/* FIX: stopPropagation supaya klik tidak langsung trigger document listener */}
       <div onClick={(e) => { e.stopPropagation(); setOpen((o) => !o); }}>{trigger(open)}</div>
       {open && (
         <div role="menu" className={cn("absolute top-full z-[90] mt-2 w-56 max-w-[calc(100vw-1.5rem)] overflow-hidden rounded-xl border bg-popover p-1 text-popover-foreground shadow-xl animate-slide-down", align === "right" ? "right-0" : "left-0")}>
