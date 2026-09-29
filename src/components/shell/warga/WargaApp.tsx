@@ -219,7 +219,7 @@ function WargaTagihan() {
   const pengaturan = useData((s) => s.pengaturan);
   const kwitansi = useData((s) => s.kwitansi);
   const [kw, setKw] = useState<Kwitansi | null>(null);
-  const konfirmasi = () => openWhatsApp(RT_INFO.whatsappAdmin, `Halo Bendahara RT 002, saya ${me?.nama} (${me?.noRumah}) ingin konfirmasi pembayaran iuran ${tunggakan.map((t) => periodeLabel(t.periode)).join(", ")} sebesar ${formatRupiah(totalTunggakan)}. Bukti transfer terlampir.`);
+  const konfirmasi = () => openWhatsApp(RT_INFO.whatsappBendahara, `Halo Bendahara RT 002, saya ${me?.nama} (${me?.noRumah}) ingin konfirmasi pembayaran iuran ${tunggakan.map((t) => periodeLabel(t.periode)).join(", ")} sebesar ${formatRupiah(totalTunggakan)}. Bukti transfer terlampir.`);
   return (
     <div className="space-y-5">
       <h1 className="text-fluid-h3 font-bold">Tagihan Saya</h1>
