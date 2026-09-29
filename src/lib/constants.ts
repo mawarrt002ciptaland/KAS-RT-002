@@ -76,7 +76,7 @@ export const RT_INFO = {
   kota: "Batam",
   provinsi: "Kepulauan Riau",
   namaLengkap: "RT 002 / RW 014 Blok Mawar Perumahan Ciptaland Batam",
-  whatsappAdmin: "6281234567890",
+  whatsappAdmin: "6282173735449",
   alamat: "Blok Mawar, Perumahan Ciptaland, Batam, Kepulauan Riau",
   pesanAduan: "Halo Admin RT 002, saya ingin menyampaikan aduan/informasi.",
 };
