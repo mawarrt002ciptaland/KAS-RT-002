@@ -162,6 +162,7 @@ function rateLimitAuth(req, res, next) {
 const editableEntities = {
   tagihan: { table: "Tagihan", columns: ["id", "kode", "wargaId", "jenis", "periode", "jumlah", "tanggalJatuhTempo", "status", "tanggalBayar", "metode", "denda", "keterangan"] },
   warga: { table: "Warga", columns: ["id", "nama", "nik", "noKK", "noRumah", "blok", "alamat", "telepon", "email", "jenisKelamin", "pekerjaan", "statusKawin", "agama", "role", "jabatan", "foto", "status", "tanggalBergabung"] },
+  anggota: { table: "AnggotaKK", columns: ["id", "wargaId", "nama", "nik", "jenisKelamin", "hubungan", "tanggalLahir"] },
   kegiatan: { table: "Kegiatan", columns: ["id", "judul", "deskripsi", "kategori", "tanggalMulai", "tanggalSelesai", "lokasi", "status", "fotoUrl", "jumlahPeserta"] },
   pengumuman: { table: "Pengumuman", columns: ["id", "judul", "konten", "kategori", "prioritas", "status", "penulis", "tanggal"] },
   pengaduan: { table: "Pengaduan", columns: ["id", "kode", "judul", "deskripsi", "kategori", "lokasi", "fotoUrl", "status", "pelapor", "wargaId", "tanggapan"] },
