@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { Home, ReceiptText, Megaphone, MessageSquareWarning, User, Bell, Wallet, Clock, CheckCircle2, MapPin, CalendarDays, Phone, MessageCircle, Sparkles, Moon, Sun, Download, QrCode, Building2, ChevronRight, Copy, LogOut, Plus, Link2, Database, RefreshCw, CircleAlert } from "lucide-react";
+import { Home, ReceiptText, Megaphone, MessageSquareWarning, User, Bell, Wallet, Clock, CheckCircle2, MapPin, CalendarDays, Phone, MessageCircle, Sparkles, Moon, Sun, Download, QrCode, Building2, ChevronRight, Copy, LogOut, Plus, Link2, Database, RefreshCw, CircleAlert, Grid3x3, ShoppingBag, Network, Tag, Store } from "lucide-react";
 import { toast } from "sonner";
 import { Toaster } from "sonner";
 import { useUI, type WargaTab } from "@/store/ui";
@@ -31,6 +31,7 @@ export default function WargaApp() {
   const tagihan = useData((s) => s.tagihan);
   const belum = tagihan.filter((t) => t.wargaId === authUser?.wargaId && t.status !== "lunas").length;
   const [notifOpen, setNotifOpen] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
   const pengumuman = useData((s) => s.pengumuman);
 
   if (neonStatus !== "connected") {
@@ -61,6 +62,7 @@ export default function WargaApp() {
         <div className="mx-auto flex h-14 max-w-3xl items-center gap-2 px-3">
           <span className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-primary text-primary-foreground">{logo ? <img src={logo} alt="" className="h-full w-full object-cover" /> : <Home className="h-5 w-5" />}</span>
           <div className="min-w-0 flex-1 leading-none"><p className="truncate text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">Sistem Informasi</p><p className="truncate text-sm font-extrabold">RT 002 Blok Mawar</p></div>
+          <button onClick={() => setMenuOpen(true)} className="touch-target flex items-center justify-center rounded-lg hover:bg-muted" aria-label="Menu"><Grid3x3 className="h-5 w-5" /></button>
           <button onClick={() => setNotifOpen(true)} className="touch-target relative flex items-center justify-center rounded-lg hover:bg-muted" aria-label="Notifikasi"><Bell className="h-5 w-5" />{(belum > 0 || pengumuman.some((p) => p.prioritas === "mendesak" && p.status === "aktif")) && <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-destructive ring-2 ring-background" />}</button>
           <button onClick={() => setTab("profil")} className="touch-target flex items-center justify-center" aria-label="Profil"><Avatar name={authUser?.nama ?? "Warga"} size="sm" /></button>
         </div>
@@ -72,6 +74,9 @@ export default function WargaApp() {
           {tab === "tagihan" && <WargaTagihan />}
           {tab === "pengumuman" && <WargaInfo />}
           {tab === "aduan" && <WargaAduan />}
+          {tab === "kegiatan" && <WargaKegiatan />}
+          {tab === "marketplace" && <WargaMarketplace />}
+          {tab === "struktur" && <WargaStruktur />}
           {tab === "profil" && <WargaProfil canSwitchAdmin={authUser?.role !== "warga"} onSwitchAdmin={() => { setRole("admin"); toast.success("Beralih ke tampilan pengurus"); }} onLogout={() => void logout().then(() => toast.success("Anda sudah keluar.")).catch(() => toast.error("Logout belum dapat diproses. Coba lagi."))} />}
         </div>
       </main>
@@ -97,6 +102,26 @@ export default function WargaApp() {
           {belum > 0 && <li className="py-3"><button onClick={() => { setNotifOpen(false); setTab("tagihan"); }} className="flex w-full items-start gap-3 text-left"><span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-warning/25 text-warning-foreground"><ReceiptText className="h-4 w-4" /></span><span className="min-w-0"><span className="block text-sm font-semibold">{belum} tagihan belum dibayar</span><span className="block text-xs text-muted-foreground">Ketuk untuk melihat tagihan saya</span></span></button></li>}
           {pengumuman.filter((p) => p.status === "aktif").slice(0, 4).map((p) => <li key={p.id} className="py-3"><button onClick={() => { setNotifOpen(false); setTab("pengumuman"); }} className="flex w-full items-start gap-3 text-left"><span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary"><Megaphone className="h-4 w-4" /></span><span className="min-w-0"><span className="block text-sm font-semibold break-anywhere">{p.judul}</span><span className="block text-xs text-muted-foreground">{relativeTime(p.tanggal)}</span></span></button></li>)}
         </ul>
+      </Modal>
+      <Modal open={menuOpen} onClose={() => setMenuOpen(false)} title="Menu Lainnya" size="sm">
+        <div className="grid grid-cols-2 gap-3">
+          <button onClick={() => { setMenuOpen(false); setTab("kegiatan"); }} className="flex flex-col items-center gap-2 rounded-xl border bg-card p-4 hover:bg-muted">
+            <CalendarDays className="h-7 w-7 text-primary" />
+            <span className="text-sm font-semibold">Kegiatan Warga</span>
+          </button>
+          <button onClick={() => { setMenuOpen(false); setTab("marketplace"); }} className="flex flex-col items-center gap-2 rounded-xl border bg-card p-4 hover:bg-muted">
+            <ShoppingBag className="h-7 w-7 text-primary" />
+            <span className="text-sm font-semibold">Marketplace</span>
+          </button>
+          <button onClick={() => { setMenuOpen(false); setTab("struktur"); }} className="flex flex-col items-center gap-2 rounded-xl border bg-card p-4 hover:bg-muted">
+            <Network className="h-7 w-7 text-primary" />
+            <span className="text-sm font-semibold">Struktur Pengurus</span>
+          </button>
+          <button onClick={() => { setMenuOpen(false); setTab("profil"); }} className="flex flex-col items-center gap-2 rounded-xl border bg-card p-4 hover:bg-muted">
+            <Link2 className="h-7 w-7 text-primary" />
+            <span className="text-sm font-semibold">Tautan & Kontak</span>
+          </button>
+        </div>
       </Modal>
       <Toaster position="top-center" richColors closeButton />
     </div>
@@ -296,6 +321,109 @@ function WargaProfil({ onSwitchAdmin, onLogout, canSwitchAdmin }: { onSwitchAdmi
         <Button variant="ghost" fullWidth className="mt-2 text-destructive" leftIcon={<LogOut className="h-4 w-4" />} onClick={onLogout}>Keluar</Button>
         <p className="mt-3 flex items-center justify-center gap-1 text-[11px] text-muted-foreground">{theme === "dark" ? <Moon className="h-3 w-3" /> : <Sun className="h-3 w-3" />} Sistem Informasi RT 002 • v1.0</p>
       </section>
+    </div>
+  );
+}
+
+/* ---------------- KEGIATAN WARGA ---------------- */
+function WargaKegiatan() {
+  const kegiatan = useData((s) => s.kegiatan);
+  const [filter, setFilter] = useState<"semua" | "akan_datang" | "selesai">("semua");
+  const filtered = filter === "semua" ? kegiatan : kegiatan.filter((k) => k.status === filter);
+  const sorted = [...filtered].sort((a, b) => new Date(b.tanggalMulai).getTime() - new Date(a.tanggalMulai).getTime());
+  return (
+    <div className="space-y-4">
+      <h1 className="text-fluid-h3 font-bold">Kegiatan Warga</h1>
+      <Tabs value={filter} onChange={setFilter} items={[{ value: "semua", label: "Semua", count: kegiatan.length }, { value: "akan_datang", label: "Akan Datang", count: kegiatan.filter((k) => k.status === "akan_datang").length }, { value: "selesai", label: "Selesai", count: kegiatan.filter((k) => k.status === "selesai").length }]} />
+      {sorted.length === 0 ? <EmptyState icon={<CalendarDays className="h-6 w-6" />} title="Belum ada kegiatan" description="Belum ada kegiatan yang terjadwal." /> : (
+        <ul className="space-y-3">
+          {sorted.map((k) => { const d = new Date(k.tanggalMulai); return (
+            <li key={k.id} className="rounded-xl border bg-card p-4">
+              <div className="flex items-start gap-3">
+                <span className={cn("flex h-14 w-14 shrink-0 flex-col items-center justify-center rounded-xl leading-none", k.status === "akan_datang" ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground")}>
+                  <span className="text-xl font-extrabold">{d.getDate()}</span>
+                  <span className="text-[10px] font-semibold uppercase">{BULAN_SHORT[d.getMonth()]}</span>
+                </span>
+                <div className="min-w-0 flex-1">
+                  <p className="text-[15px] font-semibold leading-snug break-anywhere">{k.judul}</p>
+                  <div className="mt-1 flex flex-wrap gap-1.5">
+                    <Badge tone="muted">{k.kategori}</Badge>
+                    <StatusBadge status={k.status} />
+                  </div>
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    <CalendarDays className="mr-0.5 inline h-3 w-3" />{formatTanggalID(k.tanggalMulai)}{k.jam ? ` • ${k.jam}` : ""}
+                    <MapPin className="ml-1 mr-0.5 inline h-3 w-3" />{k.lokasi ?? "-"}
+                  </p>
+                  <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{k.deskripsi}</p>
+                  {k.jumlahPeserta > 0 && <p className="mt-1 text-xs text-muted-foreground"><User className="mr-0.5 inline h-3 w-3" />{k.jumlahPeserta} peserta</p>}
+                </div>
+              </div>
+            </li>
+          ); })}
+        </ul>
+      )}
+    </div>
+  );
+}
+
+/* ---------------- MARKETPLACE ---------------- */
+function WargaMarketplace() {
+  const marketplace = useData((s) => s.marketplace);
+  const tersedia = marketplace.filter((m) => m.status === "tersedia");
+  return (
+    <div className="space-y-4">
+      <h1 className="text-fluid-h3 font-bold">Marketplace Warga</h1>
+      <p className="text-sm text-muted-foreground">Dagangan dan jasa dari warga RT 002 Blok Mawar.</p>
+      {tersedia.length === 0 ? <EmptyState icon={<ShoppingBag className="h-6 w-6" />} title="Belum ada produk" description="Belum ada dagangan yang ditampilkan warga." /> : (
+        <div className="grid grid-cols-2 gap-3">
+          {tersedia.map((m) => (
+            <div key={m.id} className="overflow-hidden rounded-xl border bg-card">
+              {m.fotoUrl ? <img src={m.fotoUrl} alt={m.nama} className="h-32 w-full object-cover" /> : <div className="flex h-32 items-center justify-center bg-muted"><Store className="h-8 w-8 text-muted-foreground" /></div>}
+              <div className="p-3">
+                <Badge tone="muted" className="mb-1">{m.kategori}</Badge>
+                <p className="text-sm font-semibold leading-snug break-anywhere">{m.nama}</p>
+                <p className="mt-1 text-lg font-bold text-primary">{formatRupiah(m.harga)}</p>
+                <p className="mt-0.5 text-xs text-muted-foreground">{m.penjual} • {m.kondisi === "baru" ? "Baru" : "Bekas"}</p>
+                <Button size="sm" variant="whatsapp" fullWidth className="mt-2" leftIcon={<MessageCircle className="h-3.5 w-3.5" />} onClick={() => openWhatsApp(toWaNumber(m.telepon), `Halo ${m.penjual}, saya tertarik dengan ${m.nama} (${formatRupiah(m.harga)}) di Marketplace RT 002.`)}>Hubungi</Button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ---------------- STRUKTUR PENGURUS ---------------- */
+function WargaStruktur() {
+  const pengurus = useData((s) => s.pengurus);
+  const sorted = [...pengurus].sort((a, b) => a.urutan - b.urutan);
+  return (
+    <div className="space-y-4">
+      <h1 className="text-fluid-h3 font-bold">Struktur Pengurus RT 002</h1>
+      <p className="text-sm text-muted-foreground">Periode {sorted[0]?.periode ?? "2024-2027"}</p>
+      <ul className="space-y-3">
+        {sorted.map((p) => (
+          <li key={p.id} className="rounded-xl border bg-card p-4">
+            <div className="flex items-start gap-4">
+              <Avatar name={p.nama} src={p.foto} size="xl" className="h-16 w-16" />
+              <div className="min-w-0 flex-1">
+                <p className="text-base font-bold leading-tight break-anywhere">{p.nama}</p>
+                <p className="text-sm text-primary font-semibold">{p.jabatan}</p>
+                {p.bidang && <p className="text-xs text-muted-foreground">Bidang: {p.bidang}</p>}
+                {p.periode && <p className="text-xs text-muted-foreground">Periode: {p.periode}</p>}
+                <div className="mt-2 flex gap-2">
+                  {p.telepon && <>
+                    <a href={`tel:${p.telepon}`} aria-label={`Telepon ${p.nama}`} className="inline-flex h-10 w-10 items-center justify-center rounded-lg border text-muted-foreground hover:bg-muted"><Phone className="h-4 w-4" /></a>
+                    <button aria-label={`WhatsApp ${p.nama}`} onClick={() => openWhatsApp(toWaNumber(p.telepon), `Halo ${p.jabatan} ${p.nama}, saya ingin bertanya mengenai RT 002.`)} className="inline-flex h-10 w-10 items-center justify-center rounded-lg border text-[#25D366] hover:bg-[#25D366]/10"><MessageCircle className="h-4 w-4" /></button>
+                  </>}
+                  {p.email && <a href={`mailto:${p.email}`} aria-label={`Email ${p.nama}`} className="inline-flex h-10 w-10 items-center justify-center rounded-lg border text-muted-foreground hover:bg-muted"><Building2 className="h-4 w-4" /></a>}
+                </div>
+              </div>
+            </div>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }

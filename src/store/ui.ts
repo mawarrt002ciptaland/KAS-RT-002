@@ -3,7 +3,7 @@ import { persist } from "zustand/middleware";
 import type { MenuKey } from "@/lib/constants";
 
 export type Role = "admin" | "warga";
-export type WargaTab = "home" | "tagihan" | "pengumuman" | "aduan" | "profil";
+export type WargaTab = "home" | "tagihan" | "pengumuman" | "aduan" | "profil" | "kegiatan" | "marketplace" | "struktur";
 export type Theme = "light" | "dark";
 
 interface UIState {
