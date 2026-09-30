@@ -177,7 +177,7 @@ const editableEntities = {
 function requireEntityWrite(req, res, next) {
   const entity = String(req.params.entity ?? "");
   if (adminRoles.has(req.user?.role)) return next();
-  if (req.user?.role === "warga" && req.method === "POST" && ["pengaduan", "marketplace"].includes(entity)) return next();
+  if (req.user?.role === "warga" && req.method === "POST" && ["pengaduan", "marketplace", "trafik"].includes(entity)) return next();
   return res.status(403).json({ error: "Akun ini tidak memiliki akses untuk mengubah data tersebut." });
 }
 

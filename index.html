@@ -79,5 +79,43 @@
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
+  
+    <script>
+      // Tracking kunjungan website ke database Neon
+      (function() {
+        function trackVisit() {
+          var path = window.location.pathname;
+          var device = /Mobi|Android/i.test(navigator.userAgent) ? 'mobile' : /iPad|Tablet/i.test(navigator.userAgent) ? 'tablet' : 'desktop';
+          var referrer = document.referrer || 'Direct';
+          if (referrer.includes('wa.me') || referrer.includes('whatsapp')) referrer = 'WhatsApp';
+          else if (referrer.includes('facebook')) referrer = 'Facebook';
+          else if (referrer.includes('google')) referrer = 'Google';
+          else if (referrer.includes('instagram')) referrer = 'Instagram';
+          else if (referrer.includes('youtube')) referrer = 'YouTube';
+          else if (referrer === '' || referrer === window.location.origin) referrer = 'Direct';
+          
+          fetch('/api/data/trafik', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify({
+              tanggal: new Date().toISOString(),
+              device: device,
+              visitors: 1,
+              sessions: 1,
+              pageViews: 1,
+              referrer: referrer,
+              page: path
+            })
+          }).catch(function() {});
+        }
+        // Track sekali per session
+        if (sessionStorage.getItem('rt002_tracked') !== '1') {
+          sessionStorage.setItem('rt002_tracked', '1');
+          setTimeout(trackVisit, 2000); // delay 2 detik supaya cookie session sudah ada
+        }
+      })();
+    </script>
+
   </body>
 </html>
