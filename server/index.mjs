@@ -695,10 +695,11 @@ app.use((error, _req, res, _next) => {
 app.get("/api/data/trafik", requireUser, async (req, res) => {
   try {
     const days = Number(req.query.days) || 30;
+    const cutoff = new Date(Date.now() - days * 86400000).toISOString();
     const rows = await sql`
       SELECT "tanggal", "device", "visitors", "sessions", "pageViews", "referrer", "page"
       FROM "TrafikWebsite"
-      WHERE "tanggal" >= NOW() - INTERVAL '${days} days'
+      WHERE "tanggal" >= ${cutoff}
       ORDER BY "tanggal" ASC
     `;
     res.json({ ok: true, items: rows });
