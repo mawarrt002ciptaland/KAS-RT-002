@@ -102,7 +102,7 @@ export default function TrafikView() {
             <div className="rounded-xl border bg-card p-4">
               <SectionTitle title="Perangkat" />
               <div className="flex items-center gap-4">
-                <MiniDonut data={devices.map((d, i) => ({ name: d.label, value: d.value, color: ["#0f9f6e", "#3b82f6", "#f59e0b"][i] }))} />
+                <MiniDonut data={devices.map((d) => ({ label: d.label, value: d.value }))} />
                 <ul className="flex-1 space-y-2">{devices.map((d, i) => (<li key={d.label} className="flex items-center justify-between text-sm"><span className="flex items-center gap-2"><span className="h-3 w-3 rounded-full" style={{ background: ["#0f9f6e", "#3b82f6", "#f59e0b"][i] }} />{d.label}</span><span className="font-bold tabular">{formatNumber(d.value)}</span></li>))}</ul>
               </div>
             </div>
