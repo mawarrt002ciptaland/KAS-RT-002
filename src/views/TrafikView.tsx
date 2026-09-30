@@ -108,13 +108,13 @@ export default function TrafikView() {
             </div>
             <div className="rounded-xl border bg-card p-4">
               <SectionTitle title="Sumber Trafik" />
-              <BarList data={referrers.slice(0, 6)} />
+              <BarList items={referrers.slice(0, 6)} money={false} />
             </div>
           </div>
 
           <div className="rounded-xl border bg-card p-4">
             <SectionTitle title="Halaman Populer" />
-            <BarList data={pages.slice(0, 7)} />
+            <BarList items={pages.slice(0, 7)} money={false} />
           </div>
 
           <p className="inline-flex items-center gap-1 text-xs text-muted-foreground"><ExternalLink className="h-3.5 w-3.5" />Data trafik dikumpulkan secara realtime dari kunjungan website RT 002.</p>
