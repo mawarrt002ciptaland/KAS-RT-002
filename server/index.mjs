@@ -170,6 +170,7 @@ const editableEntities = {
   pengurus: { table: "Pengurus", columns: ["id", "nama", "jabatan", "urutan", "telepon", "email", "foto", "periode", "bidang"] },
   tautan: { table: "Tautan", columns: ["id", "judul", "url", "kategori", "logo", "deskripsi", "urutan"] },
   marketplace: { table: "Marketplace", columns: ["id", "nama", "kategori", "harga", "deskripsi", "fotoUrl", "penjual", "telepon", "alamat", "kondisi", "status"] },
+  trafik: { table: "TrafikWebsite", columns: ["id", "tanggal", "device", "visitors", "sessions", "pageViews", "referrer", "page"] },
   anggota: { table: "AnggotaKK", columns: ["id", "wargaId", "nama", "nik", "jenisKelamin", "hubungan", "tanggalLahir"] },
 };
 
@@ -668,6 +669,24 @@ app.use((req, res, next) => {
 app.use((error, _req, res, _next) => {
   console.error("API error:", error);
   res.status(500).json({ error: "Terjadi gangguan saat memproses permintaan." });
+});
+
+
+// GET /api/data/trafik - Ambil data trafik website
+app.get("/api/data/trafik", requireUser, async (req, res) => {
+  try {
+    const days = Number(req.query.days) || 30;
+    const rows = await sql`
+      SELECT "tanggal", "device", "visitors", "sessions", "pageViews", "referrer", "page"
+      FROM "TrafikWebsite"
+      WHERE "tanggal" >= NOW() - INTERVAL '${days} days'
+      ORDER BY "tanggal" ASC
+    `;
+    res.json({ ok: true, items: rows });
+  } catch (error) {
+    console.error("Trafik fetch failed:", error);
+    res.json({ ok: true, items: [] });
+  }
 });
 
 app.listen(port, () => {
