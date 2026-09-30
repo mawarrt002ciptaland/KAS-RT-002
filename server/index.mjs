@@ -170,7 +170,6 @@ const editableEntities = {
   pengurus: { table: "Pengurus", columns: ["id", "nama", "jabatan", "urutan", "telepon", "email", "foto", "periode", "bidang"] },
   tautan: { table: "Tautan", columns: ["id", "judul", "url", "kategori", "logo", "deskripsi", "urutan"] },
   marketplace: { table: "Marketplace", columns: ["id", "nama", "kategori", "harga", "deskripsi", "fotoUrl", "penjual", "telepon", "alamat", "kondisi", "status"] },
-  trafik: { table: "TrafikWebsite", columns: ["id", "tanggal", "device", "visitors", "sessions", "pageViews", "referrer", "page"] },
   anggota: { table: "AnggotaKK", columns: ["id", "wargaId", "nama", "nik", "jenisKelamin", "hubungan", "tanggalLahir"] },
 };
 
@@ -561,6 +560,26 @@ app.get("/api/sync", requireUser, async (req, res) => {
   }
 });
 
+
+// POST /api/data/trafik - Simpan data trafik website (SEBELUM :entity route)
+app.post("/api/data/trafik", requireTrustedOrigin, requireUser, async (req, res) => {
+  try {
+    const id = randomUUID().replaceAll("-", "");
+    const device = String(req.body?.device ?? "desktop").slice(0, 20);
+    const referrer = String(req.body?.referrer ?? "Direct").slice(0, 50);
+    const page = String(req.body?.page ?? "/").slice(0, 100);
+    
+    await sql`
+      INSERT INTO "TrafikWebsite" ("id", "tanggal", "device", "visitors", "sessions", "pageViews", "referrer", "page")
+      VALUES (${id}, now(), ${device}, 1, 1, 1, ${referrer}, ${page})
+    `;
+    res.status(201).json({ ok: true });
+  } catch (error) {
+    console.error("Trafik save failed:", error.message);
+    res.status(503).json({ error: "Trafik: " + error.message });
+  }
+});
+
 app.post("/api/data/:entity", requireTrustedOrigin, requireUser, requireEntityWrite, async (req, res) => {
   const entity = String(req.params.entity);
   if (!editableEntities[entity]) return res.status(404).json({ error: "Jenis data tidak tersedia." });
@@ -689,25 +708,6 @@ app.get("/api/data/trafik", requireUser, async (req, res) => {
   }
 });
 
-
-// POST /api/data/trafik - Simpan data trafik website
-app.post("/api/data/trafik", requireTrustedOrigin, requireUser, async (req, res) => {
-  try {
-    const id = randomUUID().replaceAll("-", "");
-    const device = String(req.body?.device ?? "desktop").slice(0, 20);
-    const referrer = String(req.body?.referrer ?? "Direct").slice(0, 50);
-    const page = String(req.body?.page ?? "/").slice(0, 100);
-    
-    await sql`
-      INSERT INTO "TrafikWebsite" ("id", "tanggal", "device", "visitors", "sessions", "pageViews", "referrer", "page")
-      VALUES (${id}, now(), ${device}, 1, 1, 1, ${referrer}, ${page})
-    `;
-    res.status(201).json({ ok: true });
-  } catch (error) {
-    console.error("Trafik save failed:", error.message);
-    res.status(503).json({ error: "Data trafik belum dapat disimpan: " + error.message });
-  }
-});
 
 app.listen(port, () => {
   console.log(`Sistem Informasi RT 002 berjalan di port ${port}`);
