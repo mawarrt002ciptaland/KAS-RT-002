@@ -185,9 +185,9 @@ function WargaHome() {
         <div className="space-y-2">{pengumuman.filter((p) => p.status === "aktif").slice(0, 3).map((p) => <PengumumanCard key={p.id} p={p} compact />)}</div>
       </section>
       <section>
-        <SectionTitle title="Kegiatan Mendatang" />
-        {kegiatan.filter((k) => k.status === "akan_datang").length === 0 ? <EmptyState title="Belum ada kegiatan" /> : (
-          <ul className="space-y-2">{kegiatan.filter((k) => k.status === "akan_datang").sort((a, b) => new Date(a.tanggalMulai).getTime() - new Date(b.tanggalMulai).getTime()).slice(0, 3).map((k) => { const d = new Date(k.tanggalMulai); return (
+        <SectionTitle title="Kegiatan Terbaru" />
+        {kegiatan.length === 0 ? <EmptyState title="Belum ada kegiatan" description="Kegiatan RT 002 akan muncul di sini." /> : (
+          <ul className="space-y-2">{kegiatan.sort((a, b) => new Date(a.tanggalMulai).getTime() - new Date(b.tanggalMulai).getTime()).slice(0, 3).map((k) => { const d = new Date(k.tanggalMulai); return (
             <li key={k.id} className="flex items-center gap-3 rounded-xl border bg-card p-3"><span className="flex h-12 w-12 shrink-0 flex-col items-center justify-center rounded-xl bg-primary text-primary-foreground leading-none"><span className="text-lg font-extrabold">{d.getDate()}</span><span className="text-[10px] font-semibold uppercase">{BULAN_SHORT[d.getMonth()]}</span></span><span className="min-w-0 flex-1"><span className="block truncate text-sm font-semibold">{k.judul}</span><span className="block truncate text-xs text-muted-foreground"><Clock className="mr-0.5 inline h-3 w-3" />{k.jam ?? ""} <MapPin className="ml-1 mr-0.5 inline h-3 w-3" />{k.lokasi}</span></span><Badge tone="primary">{k.kategori}</Badge></li>
           ); })}</ul>
         )}
@@ -342,7 +342,7 @@ function WargaKegiatan() {
   return (
     <div className="space-y-4">
       <h1 className="text-fluid-h3 font-bold">Kegiatan Warga</h1>
-      <Tabs value={filter} onChange={setFilter} items={[{ value: "semua", label: "Semua", count: kegiatan.length }, { value: "akan_datang", label: "Akan Datang", count: kegiatan.filter((k) => k.status === "akan_datang").length }, { value: "selesai", label: "Selesai", count: kegiatan.filter((k) => k.status === "selesai").length }]} />
+      <Tabs value={filter} onChange={setFilter} items={[{ value: "semua", label: "Semua", count: kegiatan.length }, { value: "akan_datang", label: "Akan Datang", count: kegiatan.length }, { value: "selesai", label: "Selesai", count: kegiatan.filter((k) => k.status === "selesai").length }]} />
       {sorted.length === 0 ? <EmptyState icon={<CalendarDays className="h-6 w-6" />} title="Belum ada kegiatan" description="Belum ada kegiatan yang terjadwal." /> : (
         <ul className="space-y-3">
           {sorted.map((k) => { const d = new Date(k.tanggalMulai); return (
